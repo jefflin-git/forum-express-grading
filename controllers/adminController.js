@@ -37,6 +37,15 @@ const adminController = {
           restaurant: restaurant.toJSON()
         })
       })
+  },
+  editRestaurant: (req, res) => {
+    const id = req.params.id
+    Restaurant.findByPk(id)
+      .then(restaurant => {
+        res.render('admin/create', {
+          restaurant: restaurant.toJSON()
+        })
+      })
   }
 }
 
