@@ -1,6 +1,9 @@
 const db = require('../models')
 const Restaurant = db.Restaurant
 const fs = require('fs')
+const imgur = require('imgur-node-api')
+const restaurant = require('../models/restaurant')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const adminController = {
   getRestaurants: (req, res) => {
@@ -24,26 +27,24 @@ const adminController = {
     }
     const { file } = req
     if (file) {
-      fs.readFile(file.path, (err, data) => {
-        if (err) console.log('Error: ', err)
-        fs.writeFile(`upload/${file.originalname}`, data, () => {
-          Restaurant.create({
-            name,
-            tel,
-            address,
-            opening_hours,
-            description,
-            image: file ? `/upload/${file.originalname}` : null
-          })
-            .then(() => {
-              req.flash('success_messages', 'restaurant was successfully created')
-              return res.redirect('/admin/restaurants')
-            })
-            .catch(error => {
-              console.log(error)
-              res.render('error', { message: 'error !' })
-            })
+      imgur.setClientID(IMGUR_CLIENT_ID)
+      imgur.upload(file.path, (err, img) => {
+        Restaurant.create({
+          name,
+          tel,
+          address,
+          opening_hours,
+          description,
+          image: file ? img.data.link : null
         })
+          .then(() => {
+            req.flash('success_messages', 'restaurant was successfully created')
+            return res.redirect('/admin/restaurants')
+          })
+          .catch(error => {
+            console.log(error)
+            res.render('error', { message: 'error !' })
+          })
       })
     } else {
       Restaurant.create({
@@ -100,43 +101,48 @@ const adminController = {
     }
     const { file } = req
     if (file) {
-      fs.readFile(file.path, (err, data) => {
-        if (err) console.log('Error: ', err)
-        fs.writeFile(`upload/${file.originalname}`, data, () => {
-          Restaurant.create({
+      imgur.setClientID(IMGUR_CLIENT_ID);
+      imgur.upload(file.path, (err, img) => {
+        Restaurant.findByPk(id)
+          .then(restaurant => {
+            restaurant.update({
+              name,
+              tel,
+              address,
+              opening_hours,
+              description,
+              image: file ? img.data.link : restaurant.image,
+            })
+              .then(() => {
+                req.flash('success_messages', 'restaurant was successfully to update')
+                res.redirect('/admin/restaurants')
+              })
+              .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
+              })
+          })
+      })
+    }
+    else {
+      Restaurant.findByPk(id)
+        .then(restaurant => {
+          restaurant.update({
             name,
             tel,
             address,
             opening_hours,
             description,
-            image: file ? `/upload/${file.originalname}` : restaurant.image
+            image: restaurant.image
           })
             .then(() => {
-              req.flash('success_messages', 'restaurant was successfully created')
-              return res.redirect('/admin/restaurants')
+              req.flash('success_messages', 'restaurant was successfully to update')
+              res.redirect('/admin/restaurants')
             })
             .catch(error => {
               console.log(error)
               res.render('error', { message: 'error !' })
             })
-        })
-      })
-    } else {
-      Restaurant.create({
-        name,
-        tel,
-        address,
-        opening_hours,
-        description,
-        image: restaurant.image
-      })
-        .then(() => {
-          req.flash('success_messages', 'restaurant was successfully created')
-          return res.redirect('/admin/restaurants')
-        })
-        .catch(error => {
-          console.log(error)
-          res.render('error', { message: 'error !' })
         })
     }
   },
