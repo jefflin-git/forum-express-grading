@@ -23,10 +23,15 @@ const userController = {
           name,
           email,
           password: bcrypt.hashSync(password, bcrypt.genSaltSync(10), null)
-        }).then(user => {
-          req.flash('success_messages', '成功註冊帳號！')
-          return res.redirect('/signin')
         })
+          .then(user => {
+            req.flash('success_messages', '成功註冊帳號！')
+            return res.redirect('/signin')
+          })
+          .catch(error => {
+            console.log(error)
+            res.render('error', { message: 'error !' })
+          })
       })
   },
   signInPage: (req, res) => {
