@@ -19,7 +19,10 @@ const adminController = {
       })
   },
   createRestaurant: (req, res) => {
-    res.render('admin/create')
+    Category.findAll({ raw: true, nest: true })
+      .then(categories => {
+        res.render('admin/create', { categories })
+      })
   },
   postRestaurant: (req, res) => {
     const { name, tel, address, opening_hours, description } = req.body
@@ -37,7 +40,8 @@ const adminController = {
           address,
           opening_hours,
           description,
-          image: file ? img.data.link : null
+          image: file ? img.data.link : null,
+          CategoryId: req.body.categoryId
         })
           .then(() => {
             req.flash('success_messages', 'restaurant was successfully created')
@@ -55,7 +59,8 @@ const adminController = {
         address,
         opening_hours,
         description,
-        image: null
+        image: null,
+        CategoryId: req.body.categoryId
       })
         .then(() => {
           req.flash('success_messages', 'restaurant was successfully created')
@@ -83,11 +88,15 @@ const adminController = {
   },
   editRestaurant: (req, res) => {
     const id = req.params.id
-    Restaurant.findByPk(id)
-      .then(restaurant => {
-        res.render('admin/create', {
-          restaurant: restaurant.toJSON()
-        })
+    Category.findAll({ raw: true, nest: true })
+      .then(categories => {
+        Restaurant.findByPk(id)
+          .then(restaurant => {
+            res.render('admin/create', {
+              restaurant: restaurant.toJSON(),
+              categories
+            })
+          })
       })
       .catch(error => {
         console.log(error)
@@ -114,6 +123,7 @@ const adminController = {
               opening_hours,
               description,
               image: file ? img.data.link : restaurant.image,
+              CategoryId: req.body.categoryId
             })
               .then(() => {
                 req.flash('success_messages', 'restaurant was successfully to update')
@@ -135,7 +145,8 @@ const adminController = {
             address,
             opening_hours,
             description,
-            image: restaurant.image
+            image: restaurant.image,
+            CategoryId: req.body.categoryId
           })
             .then(() => {
               req.flash('success_messages', 'restaurant was successfully to update')
