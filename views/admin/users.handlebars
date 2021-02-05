@@ -34,17 +34,34 @@
             <td>user</td>
             {{/if}}
             <td>
-                <form action="/admin/users/{{this.id}}/toggleAdmin?_method=PUT" method="post">
-                    <button type="submit" class="btn btn-link">
-                        {{#if this.isAdmin}}
-                        set as user
-                        {{else}}
-                        set as admin
-                        {{/if}}
-                    </button>
-                </form>
+                <button type="submit" class="btn btn-link" data-toggle="modal" data-target="#set-modal-{{this.id}}">
+                    {{#if this.isAdmin}}
+                    set as user
+                    {{else}}
+                    set as admin
+                    {{/if}}
+                </button>
             </td>
         </tr>
         {{/each}}
     </tbody>
 </table>
+
+{{#each users}}
+<div class="modal fade" id="set-modal-{{this.id}}" data-backdrop="static" tabindex="-1" data-keyboard="false"
+    aria-labelledby="set-modal-{{this._id}}-Label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                要將 <strong>{{this.name}}</strong> 設為{{#if this.isAdmin}}一般使用者{{else}}管理員{{/if}}嗎？
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal">取消</button>
+                <form action="/admin/users/{{this.id}}/toggleAdmin?_method=PUT" method="post">
+                    <button type="submit" class="btn btn-danger">確認</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{/each}}

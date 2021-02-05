@@ -178,7 +178,7 @@ const adminController = {
         })
       })
       .then(() => {
-        req.flash('success_messages', 'user was successfully to update');
+        req.flash('success_messages', 'user was successfully to update')
         res.redirect('/admin/users')
       })
       .catch(error => {
