@@ -5,12 +5,11 @@ const Category = db.Category
 
 const restController = {
     getRestaurants: (req, res) => {
-        Restaurant.findAll({ raw: true, nest: true, include: [Category] })
+        Restaurant.findAll({ include: [Category] })
             .then(restaurants => {
-                console.log(restaurants)
                 const data = restaurants.map(r => ({
-                    ...r,
-                    description: r.description.substring(0, 50),
+                    ...r.dataValues,
+                    description: r.dataValues.description.substring(0, 50),
                     categoryName: r.Category.name
                 }))
                 return res.render('restaurants', { restaurants: data })
