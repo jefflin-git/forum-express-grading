@@ -55,4 +55,5 @@ module.exports = (app) => {
   app.get('/logout', userController.logout)
 
   app.get('/admin/categories', authenticatedAdmin, categoryController.getCategories)
+  app.post('/admin/categories', authenticatedAdmin, categoryController.postCategory)
 }
