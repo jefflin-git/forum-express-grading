@@ -1,6 +1,7 @@
 const restController = require('../controllers/restController.js')
 const adminController = require('../controllers/adminController')
 const userController = require('../controllers/userController')
+const categoryController = require('../controllers/categoryController')
 const helpers = require('../_helpers')
 
 const passport = require('passport')
@@ -52,4 +53,6 @@ module.exports = (app) => {
   }), userController.signIn)
 
   app.get('/logout', userController.logout)
+
+  app.get('/admin/categories', authenticatedAdmin, categoryController.getCategories)
 }
