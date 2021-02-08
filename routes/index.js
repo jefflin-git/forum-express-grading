@@ -60,5 +60,5 @@ module.exports = (app) => {
   app.put('/admin/categories/:id', authenticatedAdmin, categoryController.putCategory)
   app.delete('/admin/categories/:id', authenticatedAdmin, categoryController.deleteCategory)
 
-  app.get('/restaurants/:id', authenticatedAdmin, restController.getRestaurant)
+  app.get('/restaurants/:id', authenticated, restController.getRestaurant)
 }
