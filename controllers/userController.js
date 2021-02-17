@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
+const imgur = require('imgur-node-api')
+const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
 const userController = {
   signUpPage: (req, res) => {
@@ -45,6 +47,74 @@ const userController = {
     req.flash('success_messages', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+  getUser: (req, res) => {
+    const id = req.params.id
+    return User.findByPk(id)
+      .then(user => {
+        res.render('profile', { userData: user.toJSON() })
+      })
+      .catch(error => {
+        console.log(error)
+        res.render('error', { message: 'error !' })
+      })
+  },
+  editUser: (req, res) => {
+    const id = req.params.id
+    return User.findByPk(id)
+      .then(user => {
+        res.render('profileEdit', { userData: user.toJSON() })
+      })
+      .catch(error => {
+        console.log(error)
+        res.render('error', { message: 'error !' })
+      })
+  },
+  putUser: (req, res) => {
+    const id = req.params.id
+    console.log(req.body)
+    if (!req.body.name) {
+      req.flash('error_messages', "name didn't exist")
+      return res.redirect('back')
+    }
+
+    const { file } = req
+    if (file) {
+      imgur.setClientID(IMGUR_CLIENT_ID);
+      imgur.upload(file.path, (err, img) => {
+        return User.findByPk(id)
+          .then(user => {
+            return user.update({
+              name: req.body.name,
+              image: img.data.link
+            })
+              .then(() => {
+                req.flash('success_messages', 'user profile was successfully to update')
+                res.redirect(`/users/${id}`)
+              })
+              .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
+              })
+          })
+      })
+    } else {
+      return User.findByPk(id)
+        .then(user => {
+          return user.update({
+            name: req.body.name,
+            image: user.image
+          })
+            .then(() => {
+              req.flash('success_messages', 'user profile was successfully to update')
+              res.redirect(`/users/${id}`)
+            })
+            .catch(error => {
+              console.log(error)
+              res.render('error', { message: 'error !' })
+            })
+        })
+    }
   }
 }
 
