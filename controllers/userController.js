@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const db = require('../models')
 const User = db.User
+const Comment = db.Comment
+const Restaurant = db.Restaurant
 const imgur = require('imgur-node-api')
 const IMGUR_CLIENT_ID = process.env.IMGUR_CLIENT_ID
 
@@ -49,10 +51,16 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res) => {
-    const id = req.params.id
-    return User.findByPk(id)
+    const userId = req.params.id
+    return User.findByPk(userId)
       .then(user => {
-        res.render('profile', { userData: user.toJSON() })
+        return Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { userId } })
+          .then(result => {
+            const countComment = result.count
+            const restaurants = result.rows.map(comment => comment.Restaurant)
+            res.render('profile', { userData: user.toJSON(), countComment, restaurants, countRestaurant: restaurants.length })
+          })
+
       })
       .catch(error => {
         console.log(error)
@@ -72,7 +80,6 @@ const userController = {
   },
   putUser: (req, res) => {
     const id = req.params.id
-    console.log(req.body)
     if (!req.body.name) {
       req.flash('error_messages', "name didn't exist")
       return res.redirect('back')
