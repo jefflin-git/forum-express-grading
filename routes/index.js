@@ -28,6 +28,8 @@ module.exports = (app) => {
 
   app.get('/', authenticated, (req, res) => res.redirect('/restaurants'))
   app.get('/restaurants', authenticated, restController.getRestaurants)
+  app.get('/restaurants/feeds', authenticated, restController.getFeeds)
+  app.get('/restaurants/:id', authenticated, restController.getRestaurant)
 
   app.get('/admin', authenticatedAdmin, (req, res) => res.redirect('/admin/restaurants'))
   app.get('/admin/restaurants', authenticatedAdmin, adminController.getRestaurants)
@@ -65,8 +67,6 @@ module.exports = (app) => {
   app.get('/admin/categories/:id', authenticatedAdmin, categoryController.getCategories)
   app.put('/admin/categories/:id', authenticatedAdmin, categoryController.putCategory)
   app.delete('/admin/categories/:id', authenticatedAdmin, categoryController.deleteCategory)
-
-  app.get('/restaurants/:id', authenticated, restController.getRestaurant)
 
   app.post('/comments', authenticated, commentController.postComment)
   app.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
