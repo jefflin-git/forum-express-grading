@@ -68,6 +68,13 @@ const restController = {
             .then(([restaurants, comments]) => {
                 res.render('feeds', { restaurants, comments })
             })
+    },
+    getDashboard: (req, res) => {
+        const id = req.params.id
+        return Restaurant.findByPk(id, { include: [Category, Comment] })
+            .then(restaurant => {
+                res.render('dashboard', { restaurant: restaurant.toJSON() })
+            })
     }
 }
 
