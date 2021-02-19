@@ -39,13 +39,33 @@ const restController = {
                     .then(categories => {
                         return res.render('restaurants', { restaurants: data, categories, categoryId, page, totalPage, prev, next })
                     })
+                    .catch(error => {
+                        console.log(error)
+                        res.render('error', { message: 'error !' })
+                    })
+            })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
             })
     },
     getRestaurant: (req, res) => {
         const id = req.params.id
-        Restaurant.findByPk(id, { include: [Category, { model: Comment, include: [User] }] })
+        return Restaurant.findByPk(id, { include: [Category, { model: Comment, include: [User] }] })
             .then(restaurant => {
-                res.render('restaurant', { restaurant: restaurant.toJSON() })
+                // 在sequelize文件中increment使用await控制非同步，但不使用非同步語法運作OK，想聽聽助教的建議
+                restaurant.increment('viewCounts', { by: 1 })
+                    .then(restaurant => {
+                        res.render('restaurant', { restaurant: restaurant.toJSON() })
+                    })
+                    .catch(error => {
+                        console.log(error)
+                        res.render('error', { message: 'error !' })
+                    })
+            })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
             })
     },
     getFeeds: (req, res) => {
@@ -68,12 +88,20 @@ const restController = {
             .then(([restaurants, comments]) => {
                 res.render('feeds', { restaurants, comments })
             })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
+            })
     },
     getDashboard: (req, res) => {
         const id = req.params.id
         return Restaurant.findByPk(id, { include: [Category, Comment] })
             .then(restaurant => {
                 res.render('dashboard', { restaurant: restaurant.toJSON() })
+            })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
             })
     }
 }
