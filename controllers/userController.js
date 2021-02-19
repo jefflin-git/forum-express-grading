@@ -52,15 +52,14 @@ const userController = {
   },
   getUser: (req, res) => {
     const userId = req.params.id
-    return User.findByPk(userId)
-      .then(user => {
-        return Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { userId } })
-          .then(result => {
-            const countComment = result.count
-            const restaurants = result.rows.map(comment => comment.Restaurant)
-            res.render('profile', { userData: user.toJSON(), countComment, restaurants, countRestaurant: restaurants.length })
-          })
-
+    return Promise.all([
+      User.findByPk(userId),
+      Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { userId } })
+    ])
+      .then(([user, comments]) => {
+        const countComment = comments.count
+        const restaurants = comments.rows.map(comment => comment.Restaurant)
+        res.render('profile', { userData: user.toJSON(), countComment, restaurants, countRestaurant: restaurants.length })
       })
       .catch(error => {
         console.log(error)
