@@ -52,10 +52,10 @@ const userController = {
     res.redirect('/signin')
   },
   getUser: (req, res) => {
-    const userId = req.params.id
+    const UserId = req.params.id
     return Promise.all([
-      User.findByPk(userId),
-      Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { userId } })
+      User.findByPk(UserId),
+      Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { UserId } })
     ])
       .then(([user, comments]) => {
         const countComment = comments.count
