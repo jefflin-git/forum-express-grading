@@ -56,7 +56,8 @@ const restController = {
                 // 在sequelize文件中increment使用await控制非同步，但不使用非同步語法運作OK，想聽聽助教的建議
                 restaurant.increment('viewCounts', { by: 1 })
                     .then(restaurant => {
-                        const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+                        // const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
+                        const isFavorited = req.user.FavoritedRestaurants.map(d => d.id).includes(restaurant.id)
                         res.render('restaurant', { restaurant: restaurant.toJSON(), isFavorited })
                     })
                     .catch(error => {
