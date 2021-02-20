@@ -5,6 +5,7 @@ const Category = db.Category
 const Comment = db.Comment
 const User = db.User
 const pageLimit = 10
+const helpers = require('../_helpers')
 
 const restController = {
     getRestaurants: (req, res) => {
@@ -33,8 +34,8 @@ const restController = {
                     ...r.dataValues,
                     description: r.dataValues.description.substring(0, 50),
                     categoryName: r.dataValues.Category.name,
-                    isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(r.id),
-                    isLiked: req.user.LikedRestaurants.map(d => d.id).includes(r.id)
+                    isFavorited: helpers.getUser(req).FavoritedRestaurants.length > 0 ? helpers.getUser(req).FavoritedRestaurants.map(d => d.id).includes(r.id) : false,
+                    isLiked: helpers.getUser(req).LikedRestaurants.length > 0 ? helpers.getUser(req).LikedRestaurants.map(d => d.id).includes(r.id) : false
                 }))
                 Category.findAll({ raw: true, nest: true })
                     .then(categories => {
@@ -52,14 +53,14 @@ const restController = {
     },
     getRestaurant: (req, res) => {
         const id = req.params.id
-        return Restaurant.findByPk(id, { include: [Category, { model: User, as: 'FavoritedUsers' }, { model: Comment, include: [User] }] })
+        return Restaurant.findByPk(id, { include: [Category, { model: User, as: 'FavoritedUsers' }, { model: User, as: 'LikedUsers' }, { model: Comment, include: [User] }] })
             .then(restaurant => {
                 // 在sequelize文件中increment使用await控制非同步，但不使用非同步語法運作OK，想聽聽助教的建議
                 restaurant.increment('viewCounts', { by: 1 })
                     .then(restaurant => {
                         // const isFavorited = restaurant.FavoritedUsers.map(d => d.id).includes(req.user.id)
-                        const isFavorited = req.user.FavoritedRestaurants.map(d => d.id).includes(restaurant.id)
-                        const isLiked = req.user.LikedRestaurants.map(d => d.id).includes(restaurant.id)
+                        const isFavorited = restaurant.FavoritedUsers.length > 0 ? restaurant.FavoritedUsers.map(d => d.id).includes(helpers.getUser(req).id) : false
+                        const isLiked = restaurant.LikedUsers.length > 0 ? restaurant.LikedUsers.map(d => d.id).includes(helpers.getUser(req).id) : false
                         res.render('restaurant', { restaurant: restaurant.toJSON(), isFavorited, isLiked })
                     })
                     .catch(error => {
