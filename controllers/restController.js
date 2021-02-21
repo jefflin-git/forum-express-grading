@@ -108,6 +108,25 @@ const restController = {
                 console.log(error)
                 res.render('error', { message: 'error !' })
             })
+    },
+    getTopRestaurant: (req, res) => {
+        return Restaurant.findAll({
+            include: [{ model: User, as: 'FavoritedUsers' }]
+        })
+            .then(restaurants => {
+                restaurants = restaurants.map(restaurant => ({
+                    ...restaurant.dataValues,
+                    FavoritedUsersCount: restaurant.FavoritedUsers.length,
+                    isFavorited: req.user.FavoritedRestaurants.map(d => d.id).includes(restaurant.id)
+                }))
+                restaurants = restaurants.sort((a, b) => b.FavoritedUsersCount - a.FavoritedUsersCount).slice(0, 10)
+                res.render('topRestaurant', { restaurants })
+            })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
+            })
+
     }
 }
 
