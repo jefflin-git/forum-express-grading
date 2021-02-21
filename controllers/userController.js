@@ -58,12 +58,21 @@ const userController = {
     const UserId = req.params.id
     return Promise.all([
       User.findByPk(UserId),
-      Comment.findAndCountAll({ raw: true, nest: true, include: Restaurant, where: { UserId } })
+      Comment.findAll({ raw: true, nest: true, include: Restaurant, where: { UserId } })
     ])
       .then(([user, comments]) => {
-        const countComment = comments.count
-        const restaurants = comments.rows.map(comment => comment.Restaurant)
-        res.render('profile', { userData: user.toJSON(), countComment, restaurants, countRestaurant: restaurants.length })
+        const commentedRestaurants = comments.map(comment => comment.Restaurant)
+        const favoritedRestaurants = helpers.getUser(req).FavoritedRestaurants
+        const followers = helpers.getUser(req).Followers
+        const followings = helpers.getUser(req).Followings
+
+        res.render('profile', {
+          userData: user.toJSON(),
+          commentedRestaurants,
+          favoritedRestaurants,
+          followers,
+          followings
+        })
       })
       .catch(error => {
         console.log(error)
