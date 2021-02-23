@@ -11,6 +11,9 @@ const adminService = require('../services/adminService')
 const adminController = {
   getRestaurants: (req, res) => {
     adminService.getRestaurants(req, res, (data) => {
+      if (data['status'] === 'fail') {
+        return res.render('error', { message: 'error !' })
+      }
       return res.render('admin/restaurants', data)
     })
   },
