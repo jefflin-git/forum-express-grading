@@ -32,6 +32,18 @@ const adminController = {
             })
 
     },
+    deleteRestaurant: (req, res, callback) => {
+        const id = req.params.id
+        Restaurant.findByPk(id)
+            .then(restaurant => {
+                restaurant.destroy()
+            })
+            .then(() => callback({ status: 'success', message: '' }))
+            .catch(error => {
+                console.log(error)
+                callback({ status: 'fail', message: 'error !' })
+            })
+    }
 }
 
 module.exports = adminController

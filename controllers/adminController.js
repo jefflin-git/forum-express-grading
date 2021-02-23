@@ -147,16 +147,14 @@ const adminController = {
     }
   },
   deleteRestaurant: (req, res) => {
-    const id = req.params.id
-    Restaurant.findByPk(id)
-      .then(restaurant => {
-        restaurant.destroy()
-      })
-      .then(() => res.redirect('/admin/restaurants'))
-      .catch(error => {
-        console.log(error)
-        res.render('error', { message: 'error !' })
-      })
+    adminService.deleteRestaurant(req, res, (data) => {
+      switch (data['status']) {
+        case 'success':
+          return res.redirect('/admin/restaurants')
+        case 'fail':
+          return res.render('error', { message: 'error !' })
+      }
+    })
   },
   getUsers: (req, res) => {
     User.findAll({ raw: true })
