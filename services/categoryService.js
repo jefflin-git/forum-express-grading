@@ -47,6 +47,20 @@ const categoryController = {
                 console.log(error)
                 callback({ status: 'fail', message: 'error !' })
             })
+    },
+    deleteCategory: (req, res, callback) => {
+        const id = req.params.id
+        Category.findByPk(id)
+            .then(category => {
+                category.destroy()
+                    .then(() => {
+                        callback({ status: 'success', message: 'category was successfully created' })
+                    })
+            })
+            .catch(error => {
+                console.log(error)
+                callback({ status: 'fail', message: 'error !' })
+            })
     }
 }
 
