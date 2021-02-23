@@ -88,6 +88,59 @@ const adminController = {
                     callback({ status: 'fail', message: 'error !' })
                 })
         }
+    },
+    putRestaurant: (req, res, callback) => {
+        const id = req.params.id
+        const { name, tel, address, opening_hours, description } = req.body
+        if (!name) {
+            return callback({ status: 'error', message: "name didn't exist" })
+        }
+        const { file } = req
+        if (file) {
+            imgur.setClientID(IMGUR_CLIENT_ID);
+            imgur.upload(file.path, (err, img) => {
+                Restaurant.findByPk(id)
+                    .then(restaurant => {
+                        restaurant.update({
+                            name,
+                            tel,
+                            address,
+                            opening_hours,
+                            description,
+                            image: file ? img.data.link : restaurant.image,
+                            CategoryId: req.body.categoryId
+                        })
+                            .then(() => {
+                                callback({ status: 'success', message: 'restaurant was successfully created' })
+                            })
+                            .catch(error => {
+                                console.log(error)
+                                callback({ status: 'fail', message: 'error !' })
+                            })
+                    })
+            })
+        }
+        else {
+            Restaurant.findByPk(id)
+                .then(restaurant => {
+                    restaurant.update({
+                        name,
+                        tel,
+                        address,
+                        opening_hours,
+                        description,
+                        image: restaurant.image,
+                        CategoryId: req.body.categoryId
+                    })
+                        .then(() => {
+                            callback({ status: 'success', message: 'restaurant was successfully created' })
+                        })
+                        .catch(error => {
+                            console.log(error)
+                            callback({ status: 'fail', message: 'error !' })
+                        })
+                })
+        }
     }
 }
 

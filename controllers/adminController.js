@@ -66,60 +66,21 @@ const adminController = {
       })
   },
   putRestaurant: (req, res) => {
-    const id = req.params.id
-    const { name, tel, address, opening_hours, description } = req.body
-    if (!name) {
-      req.flash('error_messages', "name didn't exist")
-      return res.redirect('back')
-    }
-    const { file } = req
-    if (file) {
-      imgur.setClientID(IMGUR_CLIENT_ID);
-      imgur.upload(file.path, (err, img) => {
-        Restaurant.findByPk(id)
-          .then(restaurant => {
-            restaurant.update({
-              name,
-              tel,
-              address,
-              opening_hours,
-              description,
-              image: file ? img.data.link : restaurant.image,
-              CategoryId: req.body.categoryId
-            })
-              .then(() => {
-                req.flash('success_messages', 'restaurant was successfully to update')
-                res.redirect('/admin/restaurants')
-              })
-              .catch(error => {
-                console.log(error)
-                res.render('error', { message: 'error !' })
-              })
-          })
-      })
-    }
-    else {
-      Restaurant.findByPk(id)
-        .then(restaurant => {
-          restaurant.update({
-            name,
-            tel,
-            address,
-            opening_hours,
-            description,
-            image: restaurant.image,
-            CategoryId: req.body.categoryId
-          })
-            .then(() => {
-              req.flash('success_messages', 'restaurant was successfully to update')
-              res.redirect('/admin/restaurants')
-            })
-            .catch(error => {
-              console.log(error)
-              res.render('error', { message: 'error !' })
-            })
-        })
-    }
+    adminService.putRestaurant(req, res, (data) => {
+      switch (data['status']) {
+        case 'fail':
+          res.render('error', { message: 'error !' })
+          break
+        case 'error':
+          req.flash('error_messages', data['message'])
+          res.redirect('back')
+          break
+        case 'success':
+          req.flash('success_messages', data['message'])
+          res.redirect('/admin/restaurants')
+          break
+      }
+    })
   },
   deleteRestaurant: (req, res) => {
     adminService.deleteRestaurant(req, res, (data) => {
