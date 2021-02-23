@@ -17,7 +17,21 @@ const adminController = {
                 console.log(error)
                 res.render('error', { message: 'error !' })
             })
-    }
+    },
+    getRestaurant: (req, res, callback) => {
+        const id = req.params.id
+        Restaurant.findByPk(id, { include: [Category] })
+            .then(restaurant => {
+                callback({
+                    restaurant: restaurant.toJSON()
+                })
+            })
+            .catch(error => {
+                console.log(error)
+                res.render('error', { message: 'error !' })
+            })
+
+    },
 }
 
 module.exports = adminController
