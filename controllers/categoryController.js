@@ -25,19 +25,20 @@ const categoryController = {
     })
   },
   putCategory: (req, res) => {
-    const { name } = req.body
-    const id = req.params.id
-    if (!name) {
-      req.flash('error_messages', "name didn't exist")
-      return res.redirect('back')
-    }
-    Category.findByPk(id)
-      .then(category => {
-        category.update(req.body)
-          .then(() => {
-            res.redirect('/admin/categories')
-          })
-      })
+    categoryService.putCategory(req, res, (data) => {
+      switch (data['status']) {
+        case 'fail':
+          res.render('error', { message: 'error !' })
+          break
+        case 'error':
+          req.flash('error_messages', data['message'])
+          res.redirect('back')
+          break
+        case 'success':
+          req.flash('success_messages', data['message'])
+          res.redirect('/admin/categories')
+      }
+    })
   },
   deleteCategory: (req, res) => {
     const id = req.params.id
