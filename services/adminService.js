@@ -28,7 +28,7 @@ const adminController = {
             })
             .catch(error => {
                 console.log(error)
-                res.render('error', { message: 'error !' })
+                callback({ status: 'fail', message: 'error !' })
             })
 
     },

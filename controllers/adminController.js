@@ -70,6 +70,9 @@ const adminController = {
   },
   getRestaurant: (req, res) => {
     adminService.getRestaurant(req, res, (data) => {
+      if (data['status'] === 'fail') {
+        return res.render('error', { message: 'error !' })
+      }
       return res.render('admin/restaurant', data)
     })
   },
