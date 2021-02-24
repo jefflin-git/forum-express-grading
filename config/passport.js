@@ -38,7 +38,8 @@ module.exports = app => {
                 { model: Restaurant, as: 'FavoritedRestaurants' },
                 { model: Restaurant, as: 'LikedRestaurants' },
                 { model: User, as: 'Followers' },
-                { model: User, as: 'Followings' }
+                { model: User, as: 'Followings' },
+                { model: Restaurant, as: 'CommentedRestaurants' }
             ]
         })
             .then((user) => {

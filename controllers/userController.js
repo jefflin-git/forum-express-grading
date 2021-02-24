@@ -60,12 +60,9 @@ const userController = {
   },
   getUser: (req, res) => {
     const UserId = req.params.id
-    return Promise.all([
-      User.findByPk(UserId),
-      Comment.findAll({ raw: true, nest: true, include: Restaurant, where: { UserId } })
-    ])
-      .then(([user, comments]) => {
-        const commentedRestaurants = comments.map(comment => comment.Restaurant)
+    User.findByPk(UserId)
+      .then((user) => {
+        const commentedRestaurants = helpers.getUser(req).CommentedRestaurants
         const favoritedRestaurants = helpers.getUser(req).FavoritedRestaurants
         const followers = helpers.getUser(req).Followers
         const followings = helpers.getUser(req).Followings
