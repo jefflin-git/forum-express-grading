@@ -16,6 +16,10 @@ const userController = {
   },
   signUp: (req, res) => {
     const { name, email, password, passwordCheck } = req.body
+    if (!name || !email || !password || !passwordCheck) {
+      req.flash('error_messages', '請輸入資料！')
+      return res.redirect('/signup')
+    }
     if (passwordCheck !== password) {
       req.flash('error_messages', '兩次密碼輸入不同！')
       return res.redirect('/signup')
